@@ -1,8 +1,6 @@
 # Walchand Sakal Lecture Series
 
-## How can I edit this code?
-
-Follow these steps:
+## Follow these steps for local development
 
 ```bash
 # Clone the repository
