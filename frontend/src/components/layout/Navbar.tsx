@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -55,6 +56,11 @@ const Navbar = () => {
             to="/" 
             className="text-xl font-medium tracking-tight flex items-center transition-opacity hover:opacity-80"
           >
+            <img 
+              src={logo} 
+              alt="Walchand-Sakal Logo" 
+              className="h-8 w-auto mr-2" 
+            />
             <span className="text-primary mr-1">•</span>
             <span>Walchand-Sakal Lecture Series</span>
           </Link>
