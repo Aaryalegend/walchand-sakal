@@ -59,9 +59,8 @@ const Navbar = () => {
             <img 
               src={logo} 
               alt="Walchand-Sakal Logo" 
-              className="h-8 w-auto mr-2" 
+              className="h-10 w-auto mr-3" // Increased height from h-8 to h-10 and margin from mr-2 to mr-3
             />
-            <span className="text-primary mr-1">•</span>
             <span>Walchand-Sakal Lecture Series</span>
           </Link>
 
