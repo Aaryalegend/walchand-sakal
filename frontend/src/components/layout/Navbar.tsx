@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -55,7 +56,11 @@ const Navbar = () => {
             to="/" 
             className="text-xl font-medium tracking-tight flex items-center transition-opacity hover:opacity-80"
           >
-            <span className="text-primary mr-1">•</span>
+            <img 
+              src={logo} 
+              alt="Walchand-Sakal Logo" 
+              className="h-10 w-auto mr-3" // Increased height from h-8 to h-10 and margin from mr-2 to mr-3
+            />            
             <span>Walchand-Sakal Lecture Series</span>
           </Link>
 

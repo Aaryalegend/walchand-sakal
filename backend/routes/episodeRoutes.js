@@ -4,7 +4,8 @@ const {
   getEpisodeById,
   createEpisode,
   updateEpisode,
-  deleteEpisode
+  deleteEpisode,
+  generateSummary
 } = require('../controllers/episodeController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -18,5 +19,6 @@ router.get('/:id', getEpisodeById);
 router.post('/', protect, createEpisode);
 router.put('/:id', protect, updateEpisode);
 router.delete('/:id', protect, deleteEpisode);
+router.post('/generate-summary', protect, generateSummary);
 
-module.exports = router; 
+module.exports = router;

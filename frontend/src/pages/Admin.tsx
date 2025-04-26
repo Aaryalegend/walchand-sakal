@@ -18,8 +18,6 @@ const useAdminAuth = () => {
   });
 
   const login = (password: string) => {
-    // In a real application, this would be a proper authentication system
-    // This is just for demonstration purposes
     if (password === "admin123") {
       localStorage.setItem("admin-auth", "true");
       setIsLoggedIn(true);

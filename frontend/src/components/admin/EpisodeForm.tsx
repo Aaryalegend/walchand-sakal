@@ -5,9 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
+
+// Function to extract YouTube ID from various YouTube URL formats
+function extractYoutubeId(url) {
+  if (!url) return null;
+  
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  
+  return (match && match[2].length === 11) ? match[2] : null;
+}
 
 interface EpisodeFormProps {
   isEdit?: boolean;
@@ -42,6 +52,7 @@ const EpisodeForm: React.FC<EpisodeFormProps> = ({ isEdit = false }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fetchLoading, setFetchLoading] = useState(isEdit);
+  const [summarizing, setSummarizing] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
@@ -175,6 +186,63 @@ const EpisodeForm: React.FC<EpisodeFormProps> = ({ isEdit = false }) => {
     }
   };
 
+  // Function to generate summary from YouTube transcript using Gemini API
+  const handleGenerateSummary = async () => {
+    const videoId = extractYoutubeId(formData.videoId);
+    
+    if (!videoId) {
+      toast({
+        title: "Invalid YouTube Video ID",
+        description: "Please enter a valid YouTube video ID or URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSummarizing(true);
+    
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/episodes/generate-summary`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify({ videoId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data.summary) {
+        setFormData(prev => ({
+          ...prev,
+          summary: data.data.summary
+        }));
+        
+        toast({
+          title: "Summary Generated",
+          description: "The summary has been successfully created and added to the form",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to generate summary. Make sure the video has captions available.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to connect to the server",
+        variant: "destructive",
+      });
+      console.error(err);
+    } finally {
+      setSummarizing(false);
+    }
+  };
+
   if (fetchLoading) {
     return <div className="text-center py-10">Loading episode data...</div>;
   }
@@ -286,7 +354,7 @@ const EpisodeForm: React.FC<EpisodeFormProps> = ({ isEdit = false }) => {
                   required
                 />
                 <p className="text-sm text-muted-foreground">
-                  YouTube video ID (e.g. "dQw4w9WgXcQ" from https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+                  YouTube video Link or ID (e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ or "dQw4w9WgXcQ")
                 </p>
               </div>
 
@@ -303,7 +371,20 @@ const EpisodeForm: React.FC<EpisodeFormProps> = ({ isEdit = false }) => {
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="summary">Summary</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="summary">Summary</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateSummary}
+                    disabled={summarizing || !formData.videoId}
+                    className="flex items-center gap-1"
+                  >
+                    <Sparkles size={16} />
+                    {summarizing ? "Generating..." : "Create Summary"}
+                  </Button>
+                </div>
                 <Textarea
                   id="summary"
                   name="summary"
@@ -312,6 +393,11 @@ const EpisodeForm: React.FC<EpisodeFormProps> = ({ isEdit = false }) => {
                   rows={5}
                   required
                 />
+                {summarizing && (
+                  <p className="text-sm text-muted-foreground">
+                    Fetching transcript and generating summary... This may take a moment.
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-3">
@@ -334,4 +420,4 @@ const EpisodeForm: React.FC<EpisodeFormProps> = ({ isEdit = false }) => {
   );
 };
 
-export default EpisodeForm; 
+export default EpisodeForm;
